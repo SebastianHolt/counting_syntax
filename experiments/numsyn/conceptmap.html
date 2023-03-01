@@ -1,0 +1,402 @@
+<!doctype html>
+
+<link rel="shortcut icon" href="#" />
+
+
+<html>
+  <style>
+    #instructions {
+      color: #FFFFFF;
+      width: 70%;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 100px;
+      margin-bottom: auto;
+      text-align: center;
+    }
+
+    ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: black;
+      opacity: 1; /* Firefox */
+    }
+
+
+    /* Not using it, but kind of applies to:
+    https://stackoverflow.com/questions/31057699/mouseover-on-svg-circles */
+
+    /* https://github.com/anseki/leader-line/issues/21 */
+    /* https://jsfiddle.net/zbfokm5L/ */
+    svg.leader-line {
+      pointer-events: auto!important;
+    }
+
+    .popup {
+      pointer-events : auto!important;
+    }
+
+
+    #new_text {
+        user-modify: read-write;
+        -moz-user-modify: read-write;
+        -webkit-user-modify: read-write;
+    }
+    </style>
+    
+  <head>
+    <title> Concept Map </title>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/snap.svg-min.js"></script>
+    <script src="js/jspsych.js"></script>
+    <script src="js/jspsych-nAFC-circle.js"></script>
+    <script src="js/jspsych-instructions.js"></script>
+    <script src="js/lodash.min.js"></script>
+    <script src="js/plain-draggable.min.js"></script>
+    <script src="js/leader-line.min.js"></script>
+    <script src="js/setup.js"></script>
+    <link rel="stylesheet" href="./custom.css"></link>
+    
+    <script>
+      // make sure we have lodash; if we don't, then import it
+      var has_require = typeof require !== 'undefined';
+      if( typeof _ === 'undefined' ) {
+        if( has_require ) {
+          _ = require('lodash');
+          utils  = require(__base + 'utils/sharedUtils.js');
+        }
+        else throw 'mymodule requires underscore, see http://underscorejs.org';
+      };
+      
+      window.onbeforeunload = function() {
+        return "Data will be lost if you leave the page, are you sure?";
+      };
+
+
+      // https://www.w3schools.com/HOWTO/howto_js_draggable.asp
+
+      // https://anseki.github.io/plain-draggable/
+      // https://anseki.github.io/leader-line/
+      
+
+      // when the document is ready
+      $(document).ready(function() {
+        taskStartTime = Date.now();
+      });
+
+    
+      
+      
+
+    </script>
+  </head>
+
+
+  <body>
+    <div id="sketchpad" style="min-height: 500px; min-width: 500px; background-color:rgb(255, 244, 92); overflow:hidden;">
+    
+    </div>
+
+    <div style="overflow: hidden; text-align:center; height:300px;">
+    <div id="controlPanel" style="display: inline-block; height:300px; width:30%; background-color:black; overflow: scroll;">
+    
+
+    </div>
+
+    <div style="display: inline-block; max-width:50%;">
+    <p style="color:lightgoldenrodyellow; text-align:center;"> Building Blocks: </p>
+
+    <div style="width: 100%; overflow: hidden; text-align:center;">
+    <div class="blockCreator" id='blockCreator1' style="min-height: 50px; min-width: 100px; max-width: 100px; background-color: crimson; display: inline-block;  vertical-align: middle; user-select: none;  line-height: 50px" onclick="newBlock()">New Entity</div>
+
+    <div id='blockCreator2' style="min-height: 50px; min-width: 100px; max-width: 100px; background-color: indigo; margin-left: 10px; display: inline-block; position: relative; transform-style: preserve-3d; vertical-align: middle; user-select: none; line-height: 50px;" onclick="makeArrow()"> New Arrow</div>
+    </div>
+
+    <p style="color:lightgoldenrodyellow; text-align:center;"> Please explain your diagram in a few words below: </p>
+    <div style="width: 100%; overflow: hidden; text-align:center;"><input id='explanation' style='min-height: 80px; min-width: 400px; max-width: 400px; display: inline-block;' autocomplete="off" type='text' placeholder="Type explanation here"> </input></div>
+    </div>
+
+    <div style="display: inline-block; height:300px; width:30%; background-color: black;"></div>
+
+    </div>
+
+    <script>
+      window.addEventListener('load', function() {
+
+      })
+      
+      var blockList = {};
+      var blocks = 0;
+
+      var arrowDict = {};
+      var arrowList = [];
+      var arrows = 0;
+      
+
+      function newBlock(){
+        n = blocks.toString()
+        id = "block_" + n;
+        hid = "handle_" + n;
+
+        newDiv = `<div id="`+id+`" class="popup" style="background-color: grey; min-width: 100px; min-height: 25px; width:100px; position: absolute; border: 5px solid crimson;" onmouseover="highlight(`+id+`)" onmouseout="unhighlight(`+id+`)">
+          <div id="`+hid+`" style="background-color: crimson; min-width: 100%; min-height: 100%; max-width:100%; max-height:100%; text-align: center;" contenteditable=true ondblclick="editText('`+hid+`')"> 
+            </div>
+            
+        </div>
+        `
+        $('#sketchpad').append(newDiv);
+
+        blockList[n] = new PlainDraggable(document.getElementById(id));
+
+        blockList[n].setOptions({'handle': document.getElementById("handle_"+n)})
+        blocks = blocks + 1
+        initResizeElement(id)
+
+        blockList[n].onDrag = function() {
+          for (let a = 0; a < arrowList.length; a++){arrowList[a].position();} // update arrows
+        };
+
+
+        // https://stackoverflow.com/questions/6042202/how-to-distinguish-mouse-click-and-drag
+        const delta = 4;
+        let startX;
+        let startY;
+        document.getElementById(hid).addEventListener('mousedown', function (event) {
+          startX = event.pageX;
+          startY = event.pageY;
+        });
+        document.getElementById(hid).addEventListener('mouseup', function (event) {
+          const diffX = Math.abs(event.pageX - startX);
+          const diffY = Math.abs(event.pageY - startY);
+          if (diffX < delta && diffY < delta) {
+            // Click!
+            // makeArrow(id)
+          }
+        });
+        
+      };
+
+      var snake = false // there is no arrow currently under construction
+      var source = false // there is no source currently designated for connection
+
+      function makeArrow(id){
+        var userSelection = document.getElementsByClassName('popup');
+        for(let i = 0; i < userSelection.length; i++) {
+          userSelection[i].addEventListener("click", handleArrow)
+        }
+      }
+
+      function snakeFollow(e){
+        // when you're tracing out a new arrow, that snake's head will follow the cursor
+        document.getElementById('cursor').style.left = e.clientX + 'px'
+        document.getElementById('cursor').style.top = e.clientY + 'px'
+        snake.position();
+      }
+
+      $(window).on('mousemove', function(e){
+        if (e.target.id != 'sketchpad'){
+          // console.log(e.target.id)
+          // console.log(e.target.class)
+          // console.log(e.target.nodeName)
+        }})
+
+      
+      // // https://stackoverflow.com/questions/35844290/how-can-i-create-an-event-mouseover-on-tag-inside-a-svg-document-called-with
+      // function onoff(elm) {
+      //     elm.addEventListener('mouseover', function(e) {
+      //       elm.style = "stroke:black"
+      //     });
+      //     elm.addEventListener('mouseout', function(e) {
+      //       elm.style = "stroke:rgba(30, 130, 250, 0.4)"
+      //     });
+      // }
+
+      function handleArrow(){
+        if(source == false){
+              source = event.target.id
+
+              // make a provisional arrow that follows the cursor around
+              $('#sketchpad').append(`<div id='cursor' style="width:1px;height1px;position:absolute;"></div>`);
+              snake = new LeaderLine(
+                document.getElementById(source),
+                document.getElementById('cursor')
+              );
+              document.addEventListener('mousemove', snakeFollow)
+              
+            
+
+            } else{
+              // get rid of the provisional things we had made
+              document.getElementById("cursor").remove(); // the target
+              snake.remove() // and the snake
+              snake = false;
+              document.removeEventListener("mousemove", snakeFollow)
+
+
+              var line = new LeaderLine(
+                document.getElementById(source),
+                document.getElementById(event.target.id),
+                {middleLabel: 'New Relation'}
+              )
+              line.color = 'rgba(30, 130, 250, 0.4)'
+              line.middleLabel.style = "fill:black"
+
+              var userSelection = document.getElementsByClassName('leader-line');
+              var IDed = 0
+              for(let i = 0; i < userSelection.length; i++) {
+
+                paths = userSelection[i].querySelectorAll('path')
+                // for (j = 0; j < paths.length; ++j) {
+                //     onoff(paths[j]);
+                // }
+
+                
+                if (userSelection[i].id){
+                  IDed = IDed + 1
+                } else{
+                  userSelection[i].id = "arrow_" + arrows
+
+                  userSelection[i].childNodes[2].id = "new_text";  // 2 is the text
+
+                  // https://stackoverflow.com/questions/55425694/how-can-i-make-svg-text-editable
+                  // https://stackoverflow.com/questions/20429580/simulating-contenteditable-in-svg-without-foreignobject
+                  // https://github.com/artursapek/mondrian/issues/12
+                  userSelection[i].childNodes[2].addEventListener('mouseover',function(e){
+                    document.body.contentEditable = true;
+                    // console.log(e.target)
+                    $("#new_text").webkitUserSelect = 'text';
+                    
+                  });
+                  userSelection[i].childNodes[2].addEventListener('mouseout',function(e){
+                    document.body.contentEditable = false;
+                  });
+
+                  
+
+
+                  // console.log(userSelection[i].childNodes[2])
+                }
+
+
+              } // end of for-loop over leader lines
+                            
+
+              
+
+              arrowDict[arrows] = line
+              arrowList.push(line)
+              arrows = arrows += 1
+              source = false;
+              var userSelection = document.getElementsByClassName('popup');
+              for(let i = 0; i < userSelection.length; i++) {
+                userSelection[i].removeEventListener("click", handleArrow)
+              }
+
+              var rect = line.start.getBoundingClientRect();
+
+
+            }
+      }
+      function highlight(thing){
+        document.getElementById(thing.id).style.border = '5px solid black'
+      }
+      function unhighlight(thing){
+        document.getElementById(thing.id).style.border = '5px solid crimson'
+      }
+      function editText(id){
+        // console.log(id)
+        // console.log(document.getElementById(id).innerHTML)
+        if (document.getElementById(id).contenteditable == true){
+          document.getElementById(id).contenteditable = false
+
+        } else {
+          document.getElementById(id).contenteditable = true
+          
+          var node = document.getElementById( id );
+
+          if ( document.selection ) {
+              var range = document.body.createTextRange();
+              range.moveToElementText( node  );
+              range.select();
+          } else if ( window.getSelection ) {
+              var range = document.createRange();
+              range.selectNodeContents( node );
+              window.getSelection().removeAllRanges();
+              window.getSelection().addRange( range );
+          }
+        }
+      }
+
+
+
+
+
+      // Adapted from https://codepen.io/jkasun/pen/QrLjXP
+      function initResizeElement(id) {
+        var p = document.getElementById(id);
+        var element = null;
+        var startX, startY, startWidth, startHeight;
+
+        // var right = document.createElement("div");
+        // right.className = "resizer-right";
+        // right.style = "background-color: none; min-height: 100%; min-width: 5px; max-height: 100%; max-width: 5px; top:0%; left:100%; position: absolute; cursor:ew-resize;"
+        // p.appendChild(right);
+        // right.addEventListener("mousedown", initDrag, false);
+        // right.parentPopup = p;
+
+        // var bottom = document.createElement("div");
+        // bottom.className = "resizer-bottom";
+        // bottom.style = "background-color: none; min-height: 5px; min-width: 100%; max-height: 5px; max-width: 100%; top:100%; position: absolute; cursor:ns-resize;"
+        // p.appendChild(bottom);
+        // bottom.addEventListener("mousedown", initDrag, false);
+        // bottom.parentPopup = p;
+
+        // var both = document.createElement("div");
+        // both.className = "resizer-both";
+        // both.style = "background-color: none; min-height: 5px; min-width: 5px; max-height: 5px; max-width: 5px; left:100%; top:100%; position: absolute; cursor:nwse-resize;"
+        // p.appendChild(both);
+        // both.addEventListener("mousedown", initDrag, false);
+        // both.parentPopup = p;
+        
+
+        function initDrag(e) {
+          element = this.parentPopup;
+
+          startX = e.clientX;
+          startY = e.clientY;
+          startWidth = parseInt(
+            document.defaultView.getComputedStyle(element).width,
+            10
+          );
+          startHeight = parseInt(
+            document.defaultView.getComputedStyle(element).height,
+            10
+          );
+          document.documentElement.addEventListener("mousemove", doDrag, false);
+          document.documentElement.addEventListener("mouseup", stopDrag, false);
+        }
+
+        function doDrag(e) {
+          element.style.width = startWidth + e.clientX - startX + "px";
+          element.style.height = startHeight + e.clientY - startY + "px";
+          for (let a = 0; a < arrowList.length; a++){arrowList[a].position();} // update arrows
+        }
+
+        function stopDrag() {
+          document.documentElement.removeEventListener("mousemove", doDrag, false);
+          document.documentElement.removeEventListener("mouseup", stopDrag, false);
+        }
+      }
+
+
+
+      
+
+    </script>
+
+    <div id="endDiv">
+
+
+    </div>
+  </body>
+</html>

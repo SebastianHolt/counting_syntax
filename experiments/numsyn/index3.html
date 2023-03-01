@@ -1,0 +1,1269 @@
+
+<!doctype html>
+
+<link rel="shortcut icon" href="#" />
+
+<html>
+  <style>
+    #greyout {
+     width:100%;
+     height:100%; /* make sure you have set parents to a height of 100% too*/
+     position: absolute;
+     left:0; top:0;
+     z-index:100; /*just to make sure its on top*/
+     background-color:#FFFFFF;
+     opacity: 0.5;
+     display:none;
+    }
+
+    #instructions {
+      color: #FFFFFF;
+      width: 70%;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 100px;
+      margin-bottom: auto;
+      text-align: center;
+    }
+
+    #thankyou {
+      color: #FFFFFF;
+      width: 70%;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 200px;
+      margin-bottom: auto;
+      text-align: center;
+    }
+    #RoundNumDiv {
+      color: #FFFFFF;
+      width: 70%;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 0px;
+      margin-bottom: auto;
+      text-align: center;
+    }
+    #main_image {
+      /* width: 50%; */
+      color: #FFFFFF;
+      margin: auto;
+      margin-top: 0px;
+      margin-bottom: auto;
+      text-align: center;
+    }
+
+    #problem {
+      position:relative;
+      margin:auto;
+      text-align: center;
+    }
+    #stim {
+      position:relative;
+      margin:auto;
+      margin-top: 60px;
+      text-align: center;
+    }
+    #exit_survey {
+      color: #FFFFFF;
+      width: 70%;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: auto;
+      text-align: center;
+    }
+
+    /* https://stackoverflow.com/questions/2310734/how-to-make-html-text-unselectable */
+    .unselectable {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    </style>
+    
+  <head>
+    <title> Numbers </title>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/snap.svg-min.js"></script>
+    <script src="js/jspsych.js"></script>
+    <script src="js/jspsych-nAFC-circle.js"></script>
+    <script src="js/jspsych-instructions.js"></script>
+    <script src="js/lodash.min.js"></script>
+    <!-- <script src="js/object_list.js"></script> -->
+    <script src="js/setup.js"></script>
+    <link rel="stylesheet" href="./custom.css"></link>
+    <!-- <script type="text/javascript" src="assets/js/chance.js"></script> this is for setting a random seed during shuffle -->
+    
+    
+
+    <script>
+      // make sure we have lodash; if we don't, then import it
+      var has_require = typeof require !== 'undefined';
+      if( typeof _ === 'undefined' ) {
+        if( has_require ) {
+          _ = require('lodash');
+          utils  = require(__base + 'utils/sharedUtils.js');
+        }
+        else throw 'mymodule requires underscore, see http://underscorejs.org';
+      };
+
+      var UUID = function() {
+        var baseName = (Math.floor(Math.random() * 10) + '' +
+              Math.floor(Math.random() * 10) + '' +
+              Math.floor(Math.random() * 10) + '' +
+              Math.floor(Math.random() * 10));
+        var template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+        var id = baseName + '-' + template.replace(/[xy]/g, function(c) {
+          var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+          return v.toString(16);
+        });
+        return id;
+      };
+
+      function lights(num){
+        // this function is used to highlight the number-word when someone mouses over it
+        c = "#000000"
+        // if it's white already, then turn it back to colour. Otherwise, make it white
+        if($("#ordinal"+String(num)).css('background-color')=="rgb(255, 255, 255)"){
+          $("#ordinal"+String(num)).css({'background-color':c});
+        }else{
+          $("#ordinal"+String(num)).css({'background-color':"#FFFFFF"});
+        };
+      };
+
+      
+
+
+
+      function sendData() {
+        // console.log('sending data to mturk');
+        jsPsych.turk.submitToTurk({'score':score});
+      };
+      
+      window.onbeforeunload = function() {
+        return "Data will be lost if you leave the page, are you sure?";
+      };
+
+
+
+      // see if we've set some things already via URL parameters
+      var queryString = window.location.search;
+      var urlParams = new URLSearchParams(queryString);
+
+      // set task parameters set params
+
+      var maxNum = urlParams.get('maxNum')
+      if(maxNum == null){ // if not, then generate one automatically
+        var maxNum = 10;  // 10
+      }
+
+      var maxGeneral = 10;  // 10
+
+      var base = urlParams.get('base')
+      if(base == null){ // if not, then generate one automatically
+        var base = _.sample([5]);
+      }
+      var condition = urlParams.get('condition')
+      if(condition == null){ // if not, then generate one automatically
+        var condition = _.sample(['control']);  // 'control' , 'no_syntax' , 'no_count'
+      }
+
+      var curIteration = 'try_this_out' // 'sandbox', 'friends1' (Leo & Emily), 'pilot1' was a prepilot with people's friends (4 complete games), 'pilot2' was 5 games on Prolific, 'run1' is preregistered, 'pilot3_1' is for piloting the sequence-manipulation experiment, 'dave' / 'seb' were for Dave / Sebastian to test it out, 'try_this_out' is making sure it works while housed in new repo
+
+        // 'sandbox2' is current for debugging and maybe showing to people in lab meeting?
+
+      var storeData = true;
+      var systemType = "exponential" // what kind of base system? Additive, multiplicative with novel decades, exponential?
+      var ProlificCompletionCode = "C6TEPNXG" // add the completion code - manually specified after Prolific generates it for you via its own interface (while you set up the study)
+
+
+      // get the total number of trials, based on what we're probing
+      var trialTotal = maxNum + 1;  // start with the final count, plus generalization
+      let j = maxNum;
+      while (j > 1){ // then add the whole countlist length for each number leading up to it
+        trialTotal = trialTotal + j
+        j = j - 1;
+      };
+      
+      // set up some listeners to detect if the participant gets distracted with something outside of the webpage
+      var distractions = {};
+      $(window).blur(function(){
+        var timestamp = Date.now();
+        distractions[timestamp] = 'blurred';
+      });
+      $(window).focus(function(){
+        var timestamp = Date.now();
+        distractions[timestamp] = 'focused';
+      });
+
+      var turkerStatus = false;
+      
+////////////////////// BEGIN ////////////////////////////////  make the number list //////////
+      // we want to generate the list of numbers
+      highestNumber = 24
+      numSyls = [];
+      onsets = _.shuffle(['k','s','t','n','h']);
+      codas = _.shuffle(['a','i','u','e','o']);
+      possibleSyls = [];
+      for (var i = 0; i < onsets.length; i++){
+        // for (var j = 0; j < codas.length; j++){
+        curSyl = onsets[i] + codas[i];
+        possibleSyls.push(curSyl);
+        // };
+      };
+      shuffledSyls = _.shuffle(possibleSyls).slice(0,highestNumber);
+
+      // now draw from those random syllables to construct a count list
+      unitSyls = [""].concat(shuffledSyls.slice(0,base)); // from 0 to the base
+      expSyls = [""].concat(shuffledSyls.slice(base));  // from the base til the end
+      Syls = [""].concat(shuffledSyls);
+      Syls[1] = "";    // the first instance of the base doesn't need a coefficient '1'
+
+      var countList = [];
+      var longCountList = []; // this has all the extended set of generalization numbers too
+      var numDict = {};  // and populate a dictionary mapping each cardinality to its name, used to move back and forth betwee numbers and names
+
+      // this function takes an integer and a system type, and gives you the name of that integer
+      var getNumeral = function(num,system_type){
+        if (system_type == "exponential"){
+          // find the largest exponent less than the current number:
+          largestExp = 1;
+          for (var i = base; i < num + 1; i++){
+            // // how this line *should* read, analytically:
+            // largestExp = (Math.log(i) / Math.log(base)) % 1 == 0 ? i : largestExp;
+
+            // how this line *does* read to accommodate Javascript number representation:
+            largestExp = (Math.log(i) / Math.log(base)) % 1 < .000004 ? i : largestExp;
+          };
+
+          if (largestExp == 1){  // this means that our number is smaller than the base
+            nam = getNumeral(num,"multiplicative");
+          } else if (largestExp == base){  // this means we are between the base and next exponent
+            nam = getNumeral(num,"multiplicative");
+          } else {
+            expCoef = Math.floor(num / largestExp); // whatever unit name needs to quantify the exponent (e.g. *three* thousand)
+            expCoef = expCoef == 1 ? 0 : expCoef // if it's just '1' (e.g. 'one quadrillion'), keep it silent
+            expRemainder = num % largestExp;  // if there is an exponent of the base (^1 or greater)
+            
+            // how this line has to read to accommodate Javascript number representation:
+            expName = num > largestExp ? expSyls[Math.round((Math.log(largestExp) / Math.log(base))) - 1].toString() + "-" : expSyls[Math.round((Math.log(largestExp) / Math.log(base))) - 1].toString() // convert that number into a syllable
+            
+            recursiveInput = expRemainder > 0 ? expRemainder : 0
+            nam = unitSyls[expCoef] + expName + getNumeral(recursiveInput,"exponential")
+          };
+        } else if (system_type == "multiplicative"){
+          decades = Math.floor(num / base); // how many 'decades' do we have?
+          baseName = (num > base-1 ? unitSyls[base] : "");
+          remainder = num % base;
+          firstConnecter = (Syls[decades] == "" ? "" : "-")
+          secondConnector = ((unitSyls[remainder] == "" || baseName == "") ? "" : "-")
+          nam = Syls[decades] + firstConnecter + baseName + secondConnector + unitSyls[remainder]; // name of the number
+        };
+
+        return nam
+      };
+
+      // use that function to give you names for every number, all the way to our highest generalized
+      for (var nummer = 1; nummer < maxNum + 1; nummer++){
+        nam = getNumeral(nummer,systemType);
+        countList.push(nam);
+      };
+
+      // if no_syntax condition, then let's scramble the mapping between number names and their meanings
+      if (condition == 'no_syntax'){
+        countList = _.shuffle(countList);
+      };
+
+      // now let's add all the values to our dictionary mapping numbers to number-names
+      for (var nummer = 1; nummer < maxNum + 1; nummer++){
+        numDict[nummer] = countList[nummer-1]; // recall that the array is zero-indexed
+      };
+
+      // now let's keep going, and create the novel numbers that participants won't be exposed to
+      // (Sebastian is an idiot, he forgot to start var nummer at 11 instead of 1, so we can see what people in no_syntax saw)
+      longCountList = countList; // added after running all experiments, in case we ever get more data
+      for (var nummer = 11; nummer < maxNum + maxGeneral + 1; nummer++){
+        nam = getNumeral(nummer,systemType);
+        longCountList.push(nam)
+      };
+
+      // create a reverse number dictionary, mapping number names to number values:
+      nam2numDict = Object.fromEntries(Object.entries(numDict).map(([k, v]) => [v, k]))
+////////////////////// END ////////////////////////////////  make the number list //////////
+      
+
+////////////////////// BEGIN ////////////////////////////////  make ordinality materials //////////
+      var numberSet = _.range(countList.length);
+      var pairIndex = 0;
+      // get all unique pairs of numbers to compare in the ordinality task
+      // https://stackoverflow.com/questions/42773836/how-to-find-all-subsets-of-a-set-in-javascript-powerset-of-array
+      var numberPairs = numberSet.reduce(
+        (subsets, value) => subsets.concat(
+         subsets.map(set => [value,...set])
+        ),
+        [[]]
+      );
+      numberPairs = numberPairs.filter(subset => subset.length == 2); // now subset just the sets of two
+      numberPairs = _.shuffle(numberPairs) // now shuffle it all
+      var pairsToCompare = numberPairs
+////////////////////// END ////////////////////////////////  make ordinality materials //////////
+
+
+////////////////////// BEGIN ////////////////////////////////  make number-lists for conditions //////////
+
+      // this one is for the [now defunct] shuffledSequence condition
+      var shuffledNumbers = _.shuffle(numberSet);
+      var shuffledCountList = [];
+      for (var i=0;i<countList.length;i++){
+        curIndex = shuffledNumbers[i]; // this is the shuffled index
+        curItem = countList[curIndex]; // get the cardinality, by congurent index, from countlist
+        shuffledCountList.push(curItem)
+      };
+
+      // this one is for the no_count condition
+      var disorderedNums = [];
+      var disorderedNams = [];
+      for (var i=0;i<countList.length;i++){
+        disorderedNums = disorderedNums.concat(Array(countList.length-i+1).fill([numberSet[i]+1]))
+      };
+      disorderedNums = disorderedNums.slice(1) // remove first element (first countup has 2 numbers, not 1)
+      disorderedNums = _.shuffle(disorderedNums); // now shuffle it
+      for (var i=0;i<disorderedNums.length;i++){
+        curCard = disorderedNums[i]
+        disorderedNams = disorderedNams.concat(countList[curCard-1])
+      };
+        
+////////////////////// END ////////////////////////////////  make number-lists for conditions //////////
+var ordinalTrialStartTime = 0;
+var moreScore = 0;  // this is the additional score for the ordinality task
+var finished = false; // is the whole experiment over or not?
+missed = false
+side = false
+      function ordinalClick(num){
+
+        a = [parseInt(nam2numDict[$("#ordinal0").html()]), parseInt(nam2numDict[$("#ordinal1").html()])]
+        var indexOfMaxValue = a.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
+
+        // if they didn't click anything, then pretend they clicked the wrong one
+        // (but of course, keep a note that they didn't click!)
+        if (num == 'none'){
+          // https://stackoverflow.com/questions/11301438/return-index-of-greatest-value-in-an-array
+          var indexOfMinValue = a.reduce((iMax, x, i, arr) => x < arr[iMax] ? i : iMax, 0);
+          num = indexOfMinValue;
+          missed = true
+          feedback_colour = "#FFFFFF"
+          side = 'none'
+        } else {
+          missed = false
+          side = num == 0 ? 'left' : 'right'
+          feedback_colour = "#000000"
+        }
+
+        // and then move on to treat the rest as though they had clicked on this trial
+        if(parseInt(nam2numDict[$("#ordinal"+String(num)).html()]) > parseInt(nam2numDict[$("#ordinal"+String(1-num)).html()]) ){ // if correct
+          correct = true
+          correct_pair = numberPairs[pairIndex];
+          correct_pair.sort();
+          correct_pair.reverse();
+          pairsToCompare = pairsToCompare.filter( el => el !== correct_pair );
+          moreScore = moreScore + 1;
+          
+        } else if(parseInt(nam2numDict[$("#ordinal"+String(num)).html()]) < parseInt(nam2numDict[$("#ordinal"+String(1-num)).html()]) ){ // if incorrect
+          correct = false
+          numberPairs.push(numberPairs[pairIndex]); // tack the missed pair onto the end
+          // moreScore = missed == true ? Math.max(moreScore - 1, 0) : Math.max(moreScore - 2, 0); // remove 2 points for wrong answer or 1 point for missed answer, until 0 // 2022-Jan-13: just simplify and give 1 point per correct, otherwise nothing
+        } // end of 'else' portion
+        trialData = {
+          dbname : 'num_syn',
+          colname : 'exp3',
+          iterationName : curIteration,
+          eventType: 'ordinality',
+          gameID : gameid,
+          workerID: workerID,
+          assignmentID: assignmentID,
+          hitID: hitID,
+          prolificID: prolificID,
+          studyID: studyID,
+          sessionID: sessionID,     // specific to Prolific (otherwise 'undefined')
+          score : "$" + ((totalScore + moreScore) / 100).toString(),
+          totalScore : totalScore + moreScore,
+          base: base,
+          condition: condition,
+          target : longCountList, // not really target, but it's the system and we see it in generalization as well
+          correct : correct,
+          targetWord : $("#ordinal"+String(indexOfMaxValue)).html(),
+          targetNum : parseInt(nam2numDict[$("#ordinal"+String(indexOfMaxValue)).html()]),
+          responseSide : side,
+          responseNumber: parseInt(nam2numDict[$("#ordinal"+String(num)).html()]),
+          responseWord: $("#ordinal"+String(num)).html(),
+          otherNumber: parseInt(nam2numDict[$("#ordinal"+String(1-num)).html()]),
+          otherWord: $("#ordinal"+String(1-num)).html(),
+          trialStartTime : ordinalTrialStartTime,
+          initTime: taskStartTime,  // when they started the whole task by loading the page
+          RT: Date.now() - ordinalTrialStartTime,    // time until now
+          endTime: Date.now(),
+          missed: missed,
+          distractions: distractions
+        };
+        if (storeData == true){
+          socket.emit('currentData', trialData);
+        };
+        distractions = {}; // reset the record of participant getting distracted
+
+
+      
+        // now end the game if it's gone on for too long
+        if (pairIndex > 89 || pairsToCompare.length == 0){
+          EndExperiment();
+        } else{
+          clicked = 1;
+          pairIndex = pairIndex + 1; // advance the index of which pair we're on
+          OrdinalAdvance()
+          FadeTransition(feedback_colour)  // or 'feedback_colour'
+        }
+      }; // end of ordinalClick function
+
+      
+      
+
+
+
+      // initializing some things
+      var usedNums = []; // which numbers have we used so far in the experiment?
+      var gameid = UUID();
+      var hitID = '';
+      var workerID = '';
+      var assignmentID = '';
+      // get Prolific parameters
+      var queryString = window.location.search;
+      var urlParams = new URLSearchParams(queryString);
+      var prolificID = urlParams.get('PROLIFIC_PID')    // ID unique to the participant
+      var studyID = urlParams.get('STUDY_ID')                // ID unique to the study
+      var sessionID = urlParams.get('SESSION_ID')        // ID unique to the particular 
+      var totalScore = 0;
+
+      var socket = io.connect();
+      socket.on('onConnected', function(d) {
+        // hitID = d.hitID;
+        // workerID = d.workerID;
+        // assignmentID = d.assignmentID;
+        socket.removeListener('onConnected');
+          
+      });
+
+      // when the document is ready
+      $(document).ready(function() {
+        taskStartTime = Date.now();
+        // general debugging comments
+        // console.log("Base: ", base);
+        // console.log("Cond: ",condition)
+        // console.log("Count list:\n");
+        // for (var i=0;i<countList.length;i++){
+        //   console.log(i+1, countList[i])
+        // };
+
+      
+////////////////////// BEGIN ////////////////////////////////  generalization phase table //////////
+      var highestCount = 1;
+      var generalizationRTs = {}; // a datastructure for all the RTs in the generalization phase
+      var generalizationWTs = {}; // a datastructure for WRITING TIME in the generalization phase
+      var generalizationAnswers = {}; // another one for all the answers
+      var deleted = false; // has the last element of the current input field just been deleted?
+      // add another empty dict for the final testing 'highest count' task
+      for (var num = 1; num < maxNum + maxGeneral + 1; num ++){
+        firstpart = (num-1) % 2 == 0 ? "<tr class='dictrow' style='background-color:slategrey;'><td>" : "<tr class='dictrow'><td>"
+        rowAnswer = countList[num-1]
+        inputID = "input" + num.toString()
+        nextInputID = "input" + (num+1).toString()
+        rowInput = "<input id='" + inputID + "'disabled='true' autocomplete='off' type='text' placeholder='Type answer & press enter'> </input>"
+        // autocomplete: https://gist.github.com/niksumeiko/360164708c3b326bd1c8
+        markup = firstpart + num.toString() + '</td><td>' + rowInput + '</td></tr>'
+        $('#finalCountUp tbody').append(markup);
+        generalizationRTs[num] = new Array(); // generate an empy list for RTs
+        generalizationWTs[num] = new Array(); // generate an empty list for WTs
+        generalizationAnswers[num] = new Array(); // generate an empy list for answers
+        document.getElementById(inputID).addEventListener("keydown", function(event) {
+          
+          if ($("#input" + highestCount.toString()).val().length < 1 && event.keyCode != 13 && event.keyCode != 8 && event.keyCode != 46) {  // I think this only leaves normal keypresses?? I hope so. Only take the first character they type in the box. Maybe it should also exclude the delete key and backspace
+              generalizationCurClickedTime = Date.now();
+              genRT = generalizationCurClickedTime - generalizationLastEnteredTime; // mutually defined by the last time participant pressed 'enter'
+              generalizationLastClickedTime = generalizationCurClickedTime;  // reset last clicked time
+              generalizationRTs[highestCount].push(genRT);
+            }
+        });
+        document.getElementById(inputID).addEventListener("keyup", function(event) {
+            if ($("#input" + highestCount.toString()).val() != "" && event.keyCode === 13 && highestCount < maxNum + maxGeneral) { // advancing one row
+
+              generalizationCurEnteredTime = Date.now();
+              genWT = generalizationCurEnteredTime - generalizationLastClickedTime  // mutually defined by the last time participant typed the first character of their response
+              generalizationLastEnteredTime = generalizationCurEnteredTime
+              generalizationWTs[highestCount].push(genWT);
+
+              $("#input" + highestCount.toString()).prop('placeholder','Type answer & press enter');
+              event.preventDefault();
+              $('#input' + highestCount.toString()).prop('disabled', true);
+              $('#input' + (highestCount+1).toString()).prop('disabled', false);
+              $('#input' + (highestCount+1).toString()).focus();
+              $('#input' + (highestCount+1).toString()).select();
+              generalizationAnswers[highestCount].push($("#input" + highestCount.toString()).val()); // store answer
+              highestCount = highestCount + 1;
+            } else if ($("#input" + highestCount.toString()).val() == "" && event.keyCode === 13 && highestCount < maxNum + maxGeneral){ // if they have tried to enter without input
+              $("#input" + highestCount.toString()).prop('placeholder','Make a guess!')
+            } else if($("#input" + highestCount.toString()).val() == "" && highestCount > 1 && (event.keyCode === 46 || event.keyCode === 8)){ // retreating one row
+              if (deleted == true){ // if we've already deleted the whole input field
+                $('#input' + highestCount.toString()).prop('disabled', true);
+                $('#input' + (highestCount-1).toString()).prop('disabled', false);
+                $('#input' + (highestCount-1).toString()).focus();
+                $('#input' + (highestCount-1).toString()).select();
+                highestCount = highestCount - 1;
+              } else if (deleted == false){ // if it hasn't been deleted, get ready to delete next time the key is pressed
+                deleted = false;
+              }
+            } else if(event.keyCode === 13 && highestCount == maxNum + maxGeneral){  // when people enter the last row
+              generalizationCurEnteredTime = Date.now();
+              genWT = generalizationCurEnteredTime - generalizationLastClickedTime  // mutually defined by the last time participant typed the first character of their response
+              generalizationLastEnteredTime = generalizationCurEnteredTime
+              generalizationWTs[highestCount].push(genWT);
+
+              $("#stim").hide();
+              $("#instructionReminder").hide();
+              phase = 3;
+              
+              $("#stim").hide();
+              $("#nextButton").hide();
+              $("#response").hide();
+              $("#RoundNumDiv").hide();
+              $("#nextDiv").hide();
+              $("#finalCountUp").hide();
+
+              // $("#instruction_text").html("<p style='color:white'><b><u>Phase 3</u>:</b><br>Which number is bigger? In this section, you will have 4 seconds to click the larger number. <br><br>Correct answers earn a bonus of <b style='color:gold'>2¢</b> each, while incorrect answers will be deducted <b style='color:red'>1¢</b> each (though any bonus you earned in phases 1 and 2 is safe!). You will not see feedback during this phase.<br><br>If the computer does not register your click during a trial, the screen will briefly flash white. <br><br>Click the button to begin!<br><br></p>");
+              $("#instruction_text").html("<p style='color:white'><b><u>Phase 3</u>:</b><br>Which number is bigger? In each trial of this section, you will have <b>4 seconds</b> to click the larger number. <br><br>You will not see feedback during this phase, though if the computer does not register your click during a trial, the screen will briefly flash white. <br><br>Click the button to begin!<br><br></p>");
+
+
+              document.getElementById('startExperimentButton').removeAttribute("onclick"); // remove the old function that would start here
+              $("#startExperimentButton").on('click',function(){
+                $("#instructions").hide();
+                $("#finalCountUp").hide();
+                $("#ordinalityTask").css({'display':'block'});
+                $("#instructionReminder").html("<p style='color:gold'><b><u>Comparison</u>:</b><br>Which number is bigger? Click for a bonus of 1¢ per correct answer.<br><br></p>");
+                $("#instructionReminder").show();
+                $("#ordinalityTask").show();
+                $("#RoundNumDiv").hide();
+                OrdinalAdvance() // launch the first ordinal comparison
+                FadeTransition("#FFFFFF")
+              });
+              $("#instructions").show();
+              
+              generalizationAnswers[highestCount].push($("#input" + highestCount.toString()).val()); // store answer
+
+              correct = 0;
+              // figure out their score from the generalization by pairwise comparing all their answers with ones we would have given:
+              for (var n = 0; n < Object.keys(generalizationAnswers).length; n++){
+                m = n + 1;
+                if (generalizationAnswers[m.toString()] == longCountList[n] || generalizationAnswers[m.toString()] == longCountList[n].replace(/-/g, '')){
+                  if (n < maxNum){
+                    totalScore = totalScore + 1 // used to augment by 3 for every correct response, then we just decided to give 3¢ if they got any (one) thing right. Now reverting back // 2022-Jan-13 just simplify and give 1 point for correct responses
+                    correct = correct + 1;
+                  }
+                }
+              };
+              // correct = correct / Object.keys(generalizationAnswers).length;
+              correct = correct / maxNum;
+              // store data (generalization phase)
+              trialData = {
+                dbname : 'num_syn',
+                colname : 'exp3',
+                iterationName : curIteration,
+                eventType: 'generalization',
+                gameID : gameid,
+                workerID: workerID,
+                assignmentID: assignmentID,
+                hitID: hitID,
+                prolificID: prolificID,
+                studyID: studyID,
+                sessionID: sessionID,     // specific to Prolific (otherwise 'undefined')
+                score : "$" + (totalScore / 100).toString(),
+                totalScore : totalScore,
+                base: base,
+                condition: condition,
+                target : longCountList,
+                response : generalizationAnswers,
+                correct : correct,
+                trialStartTime : curTrialTimeStarted,  // when the gen task began
+                RT: generalizationRTs,    // time between last enter and first keypress
+                WT: generalizationWTs,    // time between first keypress (of this number) and enter
+                initTime: taskStartTime,  // when they started the whole task by loading the page
+                endTime: Date.now(),
+                distractions: distractions
+              };
+              if (storeData == true){
+                socket.emit('currentData', trialData);
+              };
+              distractions = {}; // reset the record of participant getting distracted
+            }
+          });
+        }; // finish the for loop over highest count table creation
+
+////////////////////// END ////////////////////////////////  generalization phase table //////////
+
+      $("#input1").prop('disabled', false);
+      $("#main_image").hide();
+      $("#thankyou").hide();
+      $("#RoundNumDiv").hide();
+
+
+      var elapsedTrials = 1; // how many trials have we been through total?
+      var elapsedSection = 0; // how many trials have we been through in this block?
+      var take = 0;         // how many times have we tried on this trial?
+      var phase = 1;        // which phase of task are we on? learning=1, generalization=2, ordinality=3
+      var correctAnswer = 0; // what answer is currently correct?
+      var trialType = 'tutorial';  // are we doing tutorial trials, training, or generalization?
+      var curTrialTimeStarted = 0;
+      var prelimMax = 0;
+      var keyPressTime = Date.now();
+      var willRepeat = false; // very silly fix to an ordering problem on each trial
+      var repeated = false;
+      var giveup = false;
+      
+      
+
+      // this bit of code tracks whenever the FIRST keypress of the trial happens - useful for recording reaction times
+      var waitingForKeyPress = 0;
+      document.getElementById('response').addEventListener("keydown", function(event) {
+        if (waitingForKeyPress == 1 && event.keyCode != 13 && event.keyCode != 8  && event.keyCode != 46){
+          keyPressTime = Date.now();
+          waitingForKeyPress = 0;
+        };
+      });
+
+      // add an event for if they press 'enter', it will advance them(?)
+      var input = document.getElementById("response");
+      input.addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) {
+        event.preventDefault();
+        document.getElementById("nextButton").click();
+        }
+      });
+      
+      AdvanceSlide = function(){
+        var answer = document.getElementById("response").value;
+
+        // first handle if they didn't input anything
+        if (answer == ""){
+          $("#feedbackDiv").html("<b style='color:yellow;'>Please enter a response</b>");
+        // if they did write something, then have a brief period of no-typing
+        } else {
+          $("#response").prop('disabled', true);  // disable the input for a second
+
+          // handle correct answer
+          if (answer == correctAnswer || answer == correctAnswer.replace(/-/g, '')){
+            $("#feedbackDiv").html("<b style='color:green;'>Correct!</b>")
+            
+            correct = true;
+            // if we are in a testing trial, make sure to give them the point
+            if (trialType == 'quiz'){
+              totalScore = totalScore + (3 - take); // 3¢ for take 1, 2¢ for take 2
+            };
+            
+            // if correct answer AND we have finished the section, then move on to generalization
+            // or, if noseq condition, then if we've gotten to the end of the trial count
+            if (elapsedSection >= maxNum-1 && repeated == true && condition != 'no_count' || elapsedTrials > disorderedNums.length -1 && condition == 'no_count'){
+              if (trialType == 'quiz'){
+                phase = 2;
+                elapsedSection = 0;
+                setTimeout(function(){
+                  ShowCountUp(); // this sparks the table they will have to fill in
+                  $('#input1').focus(); // highlight the first response field in that table
+                  $('#input1').select();
+                },1000)
+              };
+            // but, if we have gotten to the penultimate repetition, we must practise once more
+            } else if (elapsedSection >= maxNum-1 && repeated == false) {
+                elapsedSection = -1;
+                willRepeat = true;
+                prelimMax = prelimMax + 1;
+            };
+          // handle WRONG answer, in all cases except generalization
+          } else if ( trialType == 'tutorial' || take == 2){
+            $("#feedbackDiv").html("<b style='color:red;'>The correct answer was "+ correctAnswer+"</b>")
+            correct = false;
+            giveup = true;
+
+            // now, maybe we got it wrong, but if it's also the last trial, then we still need to move on
+            if (elapsedSection >= maxNum-1 && repeated == true && condition != 'no_count' || elapsedTrials > disorderedNums.length -1 && condition == 'no_count'){
+              if (trialType == 'quiz'){
+                phase = 2;
+                elapsedSection = 0;
+                setTimeout(function(){
+                  ShowCountUp(); // this sparks the table they will have to fill in
+                  $('#input1').focus(); // highlight the first response field in that table
+                  $('#input1').select();
+                },1000)
+              };
+            }
+
+            // if it's a wrong quiz or tutorial trial
+          } else if (take < 3){
+            // don't show them the alert if we're on the last take and going to continue anyway
+            correct = false;
+            $("#feedbackDiv").html("<b style='color:red;'>Try again! (Take "+ (take+2).toString() +")</b>");
+          }
+
+          // create some info about this trial
+          timeTaken = Date.now() - curTrialTimeStarted;
+          takeTimeTaken = Date.now() - curTakeTimeStarted;
+          rt = keyPressTime - curTakeTimeStarted;
+          wt = Date.now() - keyPressTime;
+          
+          if (condition == 'shuffledSequence'){
+            curCardinality = shuffledCountList.indexOf(correctAnswer)+1;
+          } else {
+            curCardinality = countList.indexOf(correctAnswer)+1;
+          } // hmmm this might not be right
+
+          // store data
+          trialData = {
+            dbname : 'num_syn',
+            colname : 'exp3',
+            iterationName : curIteration,
+            eventType: trialType,
+            finalCount: repeated,
+            gameID : gameid,
+            workerID: workerID,
+            assignmentID: assignmentID,
+            hitID: hitID,
+            prolificID: prolificID,
+            studyID: studyID,
+            sessionID: sessionID,     // specific to Prolific (otherwise 'undefined')
+            score : "$" + (totalScore / 100).toString(),
+            totalScore : totalScore,
+            trialNum : elapsedTrials,
+            sectionTrial : elapsedSection,
+            cardinality : curCardinality,
+            base: base,
+            condition: condition,
+            target : correctAnswer,
+            response : answer,
+            correct : correct,
+            take: take,
+            distractions: distractions,
+            trialStartTime : curTrialTimeStarted,
+            takeStartTime : curTakeTimeStarted,
+            trialTime: timeTaken,
+            takeTime: takeTimeTaken,
+            RT: rt,    // time until first keypress
+            WT: wt, // time from first keypress til submission
+            initTime: taskStartTime,  // when they started the whole task by loading the page
+            endTime: Date.now()
+          };
+
+          if (storeData == true){
+            socket.emit('currentData', trialData);
+          };
+          distractions = {}; // reset the record of participant getting distracted
+
+          // if we are allowed to move on to the next trial (we didn't fail, or we have failed 3 times)
+          if (correct || giveup == true){
+            setTimeout(function(){
+                take = 0;
+                giveup = false;
+                if (willRepeat && trialType == 'quiz'){
+                  willRepeat = false;
+                  repeated = true;
+                };
+                $("#feedbackDiv").html("<br>")
+                $("#response").val("");
+                $("#response").prop('disabled', false);
+                $("#response").focus();
+                $("#response").select();
+
+                if (trialType == 'tutorial'){ // && newPrelim == 0
+                  trialType = 'quiz';
+                  $("#instructionReminder").html("<p style='color:gold'><b><u>Quiz</u>:</b><br>Test your memory and earn bonus points.<br><br></p>");
+                  $("#ScoreText").show();
+
+                  $("#second").html("?");
+
+                } else if (trialType == 'quiz'){                  
+                  // if we have NOT yet gotten to the end of the count-list so far:
+                  if (elapsedSection == prelimMax && condition == 'shuffleSequence' || !usedNums.includes(disorderedNums[elapsedTrials] ) && condition == 'no_count' || elapsedSection == prelimMax && condition == 'control' || elapsedSection == prelimMax && condition == 'no_syntax'){
+
+                    trialType = 'tutorial';
+                    if (phase==1){$("#instructionReminder").html("<p style='color:green'><b><u>Practice</u>:</b><br>Copy the new number word below <br>(no need to copy the '-' sign).</p>");}
+                    
+                    elapsedSection = elapsedSection + 1;
+
+                    if (condition=='shuffleSequence'){
+                      correctAnswer = shuffledCountList[elapsedSection]
+                      curNum = shuffledNumbers[elapsedSection]+1
+                    }
+                    if (condition=='no_count'){
+                      correctAnswer = disorderedNams[elapsedTrials]
+                      curNum = disorderedNums[elapsedTrials]
+                    }
+                    if (condition=='control' || condition=='no_syntax'){
+                      correctAnswer = countList[elapsedSection]
+                      curNum = numberSet[elapsedSection]+1
+                    }
+
+                    $("#first").html(curNum);
+                    $("#second").html(correctAnswer);
+                    if (condition == 'no_count'){ usedNums.push(disorderedNums[elapsedTrials]) }
+                    elapsedTrials = elapsedTrials + 1;
+
+                  // if we have reached the end of the count-list so far:
+                  } else if (elapsedSection < prelimMax + 1){
+                    elapsedSection = elapsedSection + 1;
+                    if (condition == 'shuffleSequence'){
+                      correctAnswer = shuffledCountList[elapsedSection];
+                      curNum = shuffledNumbers[elapsedSection]+1;
+                    }
+                    if (condition == 'no_count'){
+                      correctAnswer = disorderedNams[elapsedTrials];
+                      curNum = disorderedNums[elapsedTrials];
+                    }
+                    if (condition == 'control' || condition == 'no_syntax'){
+                      correctAnswer = countList[elapsedSection];
+                      curNum = numberSet[elapsedSection]+1;
+                    }
+                    $("#first").html(curNum);
+                    $("#second").html('?');
+                    
+                    elapsedTrials = elapsedTrials + 1;
+                    
+                    // if we have got to the end of the current countlist, make it longer and go again
+                  } else {
+                    prelimMax = prelimMax + 1;
+                    elapsedSection = 0;
+                    if (condition == 'shuffleSequence'){
+                      correctAnswer = shuffledCountList[elapsedSection];
+                      curNum = shuffledNumbers[elapsedSection]+1;
+                    }
+                    if (condition == 'no_count'){
+                      correctAnswer = disorderedNams[elapsedTrials];
+                      curNum = disorderedNums[elapsedTrials];
+                    }
+                    if (condition == 'control' || condition == 'no_syntax'){
+                      correctAnswer = countList[elapsedSection]
+                      curNum = numberSet[elapsedSection]+1
+                    }
+
+                    $("#first").html(curNum);
+                    $("#second").html('?');
+                    
+                    elapsedTrials = elapsedTrials + 1;
+                    
+                  }
+                  
+
+                  $("#RoundNumText").text("Trial "+(elapsedTrials).toString()) // " of "
+                  $("#ScoreText").text("Bonus "+(totalScore).toString() + "¢");
+                  
+                }
+                
+                
+                
+                
+
+                $("#main_image").show();
+                $("#nextButton").show();
+                $("#response").show();
+
+                // manipulate the variables for recording TIME
+                curTrialTimeStarted = Date.now();
+                curTakeTimeStarted = Date.now();
+                waitingForKeyPress = 1;
+              }, 1000);
+
+            // if we DID fail our first try (or second), then present the question again
+            } else {
+              $("#response").prop('disabled', false);  // re-enable the input so they can try again
+              $("#response").val("");
+              $("#response").focus();
+              $("#response").select();
+              curTakeTimeStarted = Date.now();
+              waitingForKeyPress = 1;
+              take += 1;
+            };
+            
+
+        };
+
+      };
+
+
+
+
+
+      fade = 0;
+      FadeTransition = function(colour) {         //  create a loop function
+        setTimeout(function() {   //  call a 3s setTimeout when the loop is called
+          new_opacity = document.getElementById('greyout').style.opacity - .01
+          document.getElementById('greyout').style.opacity = new_opacity;
+          document.getElementById('greyout').style.backgroundColor = colour;
+          document.getElementById('greyout').style.display = 'block';
+          fade++;                    //  increment the counter
+          if (fade < 50) {           //  if the counter < 10, call the loop function
+            FadeTransition();             //  ..  again which will trigger another 
+          }                       //  ..  setTimeout()
+          if(fade == 50){
+            document.getElementById('greyout').style.opacity = .5;
+            document.getElementById('greyout').style.display = 'none';
+            fade = 0;
+          }
+        }, 5)
+      }
+
+
+
+      StartExperiment = function(){
+        $("#instructions").hide();
+        $("#RoundNumDiv").show();
+        $("#RoundNumText").text("Trial 1") // " of " total, but not doing that anymore because ordinality task will not be a fixed number of trials
+        $("#response").val("");
+        
+        // general debugging comments
+        // console.log("Shuffled: ")
+        // console.log(shuffledCountList)
+        // console.log(shuffledNumbers)
+        // console.log("Noseq: ")
+        // console.log(disorderedNams)
+        // console.log(disorderedNums)
+        // console.log("Sequence: ")
+        // console.log(countList)
+        // console.log(numberSet)
+
+
+        if (condition=='shuffleSequence'){
+          correctAnswer = shuffledCountList[0] // usually elapsedSection
+          curNum = shuffledNumbers[0]+1;
+        }
+
+        if (condition=='no_count'){
+          correctAnswer = disorderedNams[0] // usually elapsedTrials
+          curNum = disorderedNums[0]
+        }
+        if (condition=='control' || condition=='no_syntax'){
+          correctAnswer = countList[0] // usually elapsedSection
+          curNum = numberSet[0]+1
+        }
+
+        if (condition == 'no_count'){ usedNums.push(disorderedNums[0]) }
+        $("#first").html(curNum);
+        $("#second").html(correctAnswer);
+
+        $("#main_image").show();
+        $("#nextButton").show();
+        $("#response").show();
+        $("#response").focus();
+        $("#response").select();
+        curTrialTimeStarted = Date.now();
+        curTakeTimeStarted = Date.now();
+        waitingForKeyPress = 1;
+
+        // putting these in just so we can skip to the end for trying out ordinality task. debugging
+        // ShowCountUp(); // this sparks the table they will have to fill in
+        // $('#input1').focus(); // highlight the first response field in that table
+        // $('#input1').select(); // delete this (all three lines)
+      };
+      var generalizationLastClickedTime = 0;
+      var generalizationLastEnteredTime = 0;
+
+      ShowCountUp = function(){
+        $("#RoundNumDiv").hide();
+        $("#stim").hide();
+        $("#nextButton").hide();
+        $("#response").hide();
+        $("#finalCountUp").show();
+        $("#nextDiv").hide();
+        $("#instructionReminder").html("<p style='color:white'><b><u>Phase 2</u>:</b><br>How high can you go? Translate all the numbers below as best you can!<br>Once you press enter for each number, you <b>CANNOT</b> change your answer.</p>");
+        generalizationLastClickedTime = Date.now(); // need to use this as a reference for the first RT of generalization phase
+        generalizationLastEnteredTime = Date.now(); // need to use this as a reference for the first WT of generalization phase
+      };
+
+      ShowOrdinalityTask = function(){
+        // $("#instructionReminder").html("<p style='color:yellow'><b><u>Phase 3</u>:</b><br>Describe ordinality task?</p>");
+        $("#finalCountUp").hide();
+        $("#ordinalityTask").css({'display':'block'});
+        $("#ordinalityTask").show();
+
+      }
+
+      EndExperiment = function(){
+        finished = true;
+        console.log("End")
+        $("#stim").hide();
+        $("#main_image").hide();
+        $("#main_image").height("0px");
+        $("#instructionReminder").hide();
+        $("#nextButton").hide();
+        $("#response").hide();
+        $("#RoundNumDiv").hide();
+        $("#nextDiv").hide();
+        $("#finalCountUp").hide();
+        $("#exit_survey").show();
+      };
+
+
+
+      // https://stackoverflow.com/questions/3583724/how-do-i-add-a-delay-in-a-javascript-loop
+      var progress = 0;
+      var clicked = 0;
+      var i = 0;                  //  set your counter to 1
+      
+      function setTimer(cur_index) {         //  create a loop function
+        if(clicked == 0){
+          setTimeout(function() {   //  call a 3s setTimeout when the loop is called
+            $("#progressBar").width(i)
+            i++;                    //  increment the counter
+            if (i < 400 && cur_index == pairIndex) {           //  if the counter < 10, call the loop function
+              setTimer(cur_index);             //  ..  again which will trigger another 
+            }                       //  ..  setTimeout()
+            if(i==400 && finished == false){
+              // clicked = 1;
+              
+              ordinalClick('none')
+            }
+          }, 10)
+        }; // end of 'if clicked == 0' section
+      }
+      
+      // for advancing the ordinality comparisons
+      OrdinalAdvance = function(){
+        pair = _.shuffle(numberPairs[pairIndex]);
+        // what this code should read:
+        $("#ordinal0").html(numDict[pair[0]+1])
+        $("#ordinal1").html(numDict[pair[1]+1])
+        ordinalTrialStartTime = Date.now();
+        
+        // // changing it just for debugging:
+        // $("#ordinal0").html(pair[0])          // delete this
+        // $("#ordinal1").html(pair[1])          // delete this
+
+        $("#ordinal1").on('click',function(){
+          correct = nam2numDict[parseInt($("#ordinal1").html())] > nam2numDict[parseInt($("#ordinal0").html())]
+        });
+        $("#ordinal0").on('click',function(){
+          correct = nam2numDict[parseInt($("#ordinal1").html())] < nam2numDict[parseInt($("#ordinal0").html())]
+        })
+
+        
+        setTimer(pairIndex)
+
+        $("#progressBarDiv").show();
+        $("#progressBar").width(0);
+        i = 0;
+        clicked = 0;
+      };
+      
+      }); // end of the 'document ready' section
+       
+   
+      
+      $("#surveySubmit").on("click", function(){
+        $("#exit_survey").hide()
+        $("#thankyouText").text( "Successfully submitted. \n (Close this tab any time)")
+        $("#thankyou").show()
+      });
+
+      var subject_information = [];
+      // This gets called when someone selects something in the menu during the exit survey...
+      // collects data from drop-down menus and submits using not mmturkey, but JSPsych
+      function dropdownTip(data){
+        var commands = data.split('::');
+        switch(commands[0]) {
+        case 'gender' :
+          subject_information = _.extend(subject_information,
+                    {'gender' : commands[1]}); break;
+        case 'age' :
+          subject_information = _.extend(subject_information,
+                    {'age' : commands[1]}); break;
+        case 'comments' :
+          subject_information = _.extend(subject_information,
+                    {'comments' : commands[1]}); break;
+        case 'confused' :
+          subject_information = _.extend(subject_information,
+                    {'confused' : commands[1]}); break;
+        case 'submit' :
+          subject_information = _.extend(subject_information,
+                    {'comments' : $('#comments').val(),
+                  'totalLength' : new Date() - startTime});
+          trialData = {
+            dbname : 'num_syn',
+            colname : 'exp3',
+            iterationName : curIteration,
+            eventType: 'survey',
+            gameID : gameid,
+            workerID: workerID,
+            assignmentID: assignmentID,
+            hitID: hitID,
+            prolificID: prolificID,
+            studyID: studyID,
+            sessionID: sessionID,     // specific to Prolific (otherwise 'undefined')
+            score : "$" + ((totalScore + moreScore) / 100).toString(),
+            totalScore : totalScore + moreScore,
+            base: base,
+            condition: condition,
+            // surveyData : subject_information,
+            gender: subject_information['gender'],
+            age: subject_information['age'],
+            comments: subject_information['comments'],
+            understood: subject_information['confused'],
+            totalLength: subject_information['totalLength'],
+            initTime: taskStartTime,  // when they started the whole task by loading the page
+            endTime: Date.now(),
+            distractions: distractions
+          };
+          if (storeData == true){
+            socket.emit('currentData', trialData);
+          };
+          distractions = {}; // reset the record of participant getting distracted
+          if(turkerStatus == true) {
+            jsPsych.turk.submitToTurk(subject_information); // this seems like it works, while the line below does not...         
+            // window.opener.turk.submit(subject_information, true);
+            $("#exit_survey").hide()
+            $("#thankyouText").text( "Successfully submitted. \n (Close this tab any time)")
+            $("#thankyou").show()
+            window.close();
+          } else if (typeof(PROLIFIC_PID) != undefined){
+            // if this is a Prolific study
+            prolificSubmitTo = "https://app.prolific.co/submissions/complete?cc=" // basic submit URL
+            prolificSubmitTo = prolificSubmitTo + ProlificCompletionCode; // this is defined where we set the params way at the beginning
+            window.open(prolificSubmitTo,"_self");
+          } else {
+            console.log("Didn't submit to MTurk :")
+            $("#exit_survey").hide()
+            $("#thankyouText").text( "Successfully submitted. \n (Close this tab any time)")
+            $("#thankyou").show()
+          }
+          break;
+        };
+      };
+
+      var startTime = new Date()
+      
+    </script>
+  </head>
+
+
+  <body>
+    <div id="greyout"></div>
+    <div id="display-area"></div>
+    <!-- Instructions DIV is hidden once they 
+    click the button. Default instruction text is for number condition -->
+    <div id="instructions">
+      <p id="instruction_text">
+        You passed the quiz! <br><br>
+        Feel free to start when you are ready. <br><br>
+      </p>
+      <button id="startExperimentButton" onclick="StartExperiment()">
+        Click here to begin
+      </button>
+    </div>
+    <div id="RoundNumDiv" style="display:flex;">
+      <p id="RoundNumText" style="display:block;" flex="1;">
+        Round 0
+      </p>
+      <p id="ScoreText" style="display:block;" flex="1;">
+        Score 0
+      </p>
+    </div>
+    <div id="main_image" style="height:150px">
+      <center>
+        <div id="instructionReminder"> <p style="color:green"> <b><u>Practice</u>:</b><br>Copy the new number word below <br>(no need to copy the '-' sign if it appears). </p></div>
+      <table id="stim">
+        <tbody id='problem' style="text-align:center;font-size:40px">
+          <td id='first' class="unselectable" style='color:blue;text-align:center;'> A </td>
+          <td class="unselectable" >&nbsp;&nbsp;=&nbsp;&nbsp;</td>
+          <td id='second' class="unselectable" style='color:grey;text-align:center;'> B </td>
+        </tbody>
+      </table>
+      <table id="finalCountUp" style="display:none;">
+        <center>
+        <tbody id='finalCountUpBody' style="text-align:center;font-size:20px">
+        </tbody>
+        </center>
+      </table>
+      <div id="progressBarDiv" style="display:none;">
+        <div id="progressBarHolder" style="border-color:#FFFFFF; border-width:2px; min-height:30px; min-width:400px; max-width:400px; display:block; background-color: grey;">
+      <rect id="progressBar" style="margin-left:0;margin-right:auto; background-color:#FFFFFF;height:30px;width:0px;display:block;"> </rect>
+        </div>
+      <br><br>
+      </div>
+    <table id="ordinalityTask" style="display:none;text-align:center;">
+    <center>
+      <tbody id='ordinalProblem' style="text-align:center;font-size:40px;display:inline;">
+        <td id='ordinal0' class="unselectable" class="ordinalNum" onclick="ordinalClick(0)" onmouseover="lights(0)" onmouseout="lights(0)" style='color:blue;text-align:center;'> 2 </td>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+        <td id='ordinal1' class="unselectable" class="ordinalNum" onclick="ordinalClick(1)" onmouseover="lights(1)" onmouseout="lights(1)" style='color:grey;text-align:center;'> 4 </td>
+      </tbody>
+    </center>
+    </table>
+  </center>
+    </div>
+    <div id="nextDiv">
+      <center>
+        <br>
+      <div id="feedbackDiv" style='margin-top:20px'> <br> </div>
+      <input id='response' style='display:none;' autocomplete="off" type=text placeholder="Type answer here"> </input>
+      <!-- prevent autocomplete: https://gist.github.com/niksumeiko/360164708c3b326bd1c8 -->
+      <br>
+      <br>
+      <button id="nextButton" onclick="AdvanceSlide()" style="display:none">
+        Next
+      </button>
+    </center>
+    </div>
+    <div id="thankyou">
+      <p id="thankyouText">
+        Thank you!
+      </p>
+    </div>
+
+
+    <div id="exit_survey" style="display:none">
+      <p> <b style="color:green;">You're done the experiment</b>, thanks for participating! Please fill out this optional demographic survey and submit the task at the bottom of the page. </p><br>
+      (When you click "Submit", a pop-up window will appear; feel free to click "Leave" at that prompt) <br>
+
+      <p> What is your gender? </p>
+      <select onChange="dropdownTip('gender::' + this.value)">
+        <option value =""></option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+      <br><br>
+
+      <p> What is your age? </p>
+      <textarea id='age' onChange="dropdownTip('age::' + this.value)" rows="1" cols="8"></textarea>
+      <br><br>
+
+      <p> Did you read the instructions and do you think you did the
+  task correctly? </p>
+      <select onChange="dropdownTip('confused::' + this.value)">
+        <option value = ""></option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+        <option value="confused">I was confused</option>
+      </select>
+
+      <p> Do you have any comments on the experiment? </p>
+      <textarea id='comments' onChange="dropdownTip('comments::' + this.value)" rows="4" cols="50"></textarea>
+      <br>
+      
+      <p> Note: Clicking this button should automatically submit the task and close this tab. There is no need to input a code.<p>
+      <p> If you experience a problem submitting, please contact ladlab.ucsd@gmail.com for compensation. </p>
+      <div><button id="surveySubmit" onclick="dropdownTip('submit')" type="button">Submit</button></div>
+    </div>
+
+
+  </body>
+</html>

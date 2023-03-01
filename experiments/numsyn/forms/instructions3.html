@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <link rel="shortcut icon" href="#" />
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Numbers</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../lib/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+  </head>
+
+  <body role="document">
+
+    <div class="container theme-showcase" role="main">
+
+      </br>
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100" style="width: 5%;"><span class="sr-only">5% Complete</span></div>
+      </div>
+
+      <div class="page-header">
+        <h1>Instructions</h1>
+      </div>
+
+      <div class="well" style="width:800px; margin: 0 auto">
+
+<h2><center>Number System</center>  </h2>
+
+<h3>Phase 1</h3>
+	<p>
+
+    In this experiment you will learn a new number system. Your task is to practise and name numbers as quickly and accurately as possible.
+  </p>
+  
+  <p>
+    Sometimes before the trial, you will be shown a new number word and asked to type it out for practice. For example, here is a new word equal to '3'. You would write 'te' in the box:
+  </p>
+
+  <p>
+    <center><img src="images/practice_trial.png" alt="Quiz Trial" style="width:200px;height:150px"></center>
+  </p>
+
+  <p>
+    In most trials, you will just be presented with a number and asked to provide a translation for it in the new number system:
+  </p>
+
+  <p>
+    <center><img src="images/quiz_trial.png" alt="Quiz Trial" style="width:200px;height:150px"></center>
+  </p>
+
+  
+
+  <p>
+    Keep in mind that if there is a hyphen (-) in the number word, you don't have to type it in your answer. So for example, if the number's name is 'te-ko', you could just write 'teko'.
+  </p>
+
+  <h3>Phases 2 & 3</h3>
+  <p>
+    After learning the number system, there will be <b>two more</b> short sections of the task. In those sections, you will be asked to use the numbers you will have just learned, but will not get feedback on your performance.
+    <br><br>
+    <b>Bonus: </b> There will be bonus awarded for speed and accuracy of up to $2.60.
+  </p>
+
+
+<p>
+  Finally, please DO NOT refresh the page at any point once you start
+  the game. If you refresh, you will not
+  be able to get back to the session you were in, you will lose your progress, and you may not be able to
+  submit the task. <br> Thank you!
+</p>
+
+<h4>
+    Please fill out this short quiz below before getting started. Good luck and have fun!
+</h4>
+
+
+
+  </div>
+  <div class="page-header">
+    <h3>Comprehension Quiz</h3>
+  </div>
+
+ <div class="well" style="width:800px; margin: 0 auto">
+
+  If you refresh the page at any point, you will lose all progress.
+    </br>
+    <input type="radio" name="refresh" value="no"> False
+    </br>
+    <input type="radio" name="refresh" value="yes"> True
+    </br>
+  </br>
+  If the number word has hyphens, you will have to type the hyphens in your response.
+      </br>
+      <input type="radio" name="hyphens" value="yes"> False
+      </br>
+      <input type="radio" name="hyphens" value="no"> True
+      </br>
+  </br>
+  Sections 2 and 3 of this task do not provide feedback about accuracy.
+      </br>
+      <input type="radio" name="sections" value="no"> False
+      </br>
+      <input type="radio" name="sections" value="yes"> True
+      </br>
+  </br>
+  <!-- Allowing the time to run out in section 3 will lose $0.01 of bonus money.
+      </br>
+      <input type="radio" name="timer" value="no"> False
+      </br>
+      <input type="radio" name="timer" value="yes"> True
+      </br>
+  </br> -->
+    <input id="quiz_submit" type="submit" value="Submit">
+      </br>
+      </br>
+  <div class="error" style="display:none"> Ooops! Looks like you made a mistake. You have one more try. </div>
+    </div> <!-- /container -->
+      </div>
+    <script type="text/javascript">
+      $('html,body').scrollTop(0);
+      var urlParams;
+	var match,
+	      pl     = /\+/g,  // Regex for replacing addition symbol with a space
+	      search = /([^&=]+)=?([^&]*)/g,
+	      decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+	      query  = location.search.substring(1);
+
+      urlParams = {};
+      
+      while (match = search.exec(query))
+      urlParams[decode(match[1])] = decode(match[2]);
+      
+      var counter = 0;
+      document.getElementById("quiz_submit").onclick = function () {
+        var ans1 = $('input[name="refresh"]:checked').val();
+        var ans2 = $('input[name="hyphens"]:checked').val();
+        var ans3 = $('input[name="sections"]:checked').val();
+        // var ans4 = $('input[name="timer"]:checked').val();
+        
+
+        if(ans1 == "yes" && ans2 == "yes" && ans3 == "yes" && urlParams.PROLIFIC_PID != undefined) {
+           var PROLIFIC_PID = urlParams.PROLIFIC_PID;
+           var STUDY_ID = urlParams.STUDY_ID;
+           var SESSION_ID = urlParams.SESSION_ID;
+           location.replace("../index3.html?PROLIFIC_PID=" + PROLIFIC_PID
+                            + "&STUDY_ID=" + STUDY_ID
+                            + "&SESSION_ID=" + SESSION_ID);
+        } else if(ans1 == "yes" && ans2 == "yes" && urlParams.PROLIFIC_PID == undefined) {
+          location.replace("../index3.html");
+        } else if(counter == 2) {
+          location.replace("./fail.html");
+        } else {
+          $('.error').show()
+          counter += 1;
+        }
+      };
+    </script>
+
+    <script src="./validate-form.js"></script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+
+    <!-- <script src="../lib/js/bootstrap.min.js"></script> -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  </body>
+</html>
