@@ -1,0 +1,97 @@
+Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: RT ~ cond * numsum * freq + (1 | GID)
+   Data: M2
+
+REML criterion at convergence: 88130.5
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.9371 -0.7046 -0.1685  0.5943  5.3459 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ GID      (Intercept)  376000   613.2  
+ Residual             1074221  1036.4  
+Number of obs: 5259, groups:  GID, 91
+
+Fixed effects:
+                           Estimate Std. Error        df t value Pr(>|t|)    
+(Intercept)               -6378.028   1440.292  5223.639  -4.428 9.69e-06 ***
+condno_count               -517.805   2146.085  5215.160  -0.241   0.8093    
+condno_syntax              2355.993   2027.118  5222.000   1.162   0.2452    
+numsum                      478.620     67.098  5177.842   7.133 1.12e-12 ***
+freq                        491.913     70.189  5177.456   7.008 2.72e-12 ***
+condno_count:numsum           7.192     99.855  5170.363   0.072   0.9426    
+condno_syntax:numsum       -173.771     94.548  5174.878  -1.838   0.0661 .  
+condno_count:freq             1.241    104.563  5170.104   0.012   0.9905    
+condno_syntax:freq         -144.435     98.941  5175.041  -1.460   0.1444    
+numsum:freq                 -19.067      1.572  5183.753 -12.129  < 2e-16 ***
+condno_count:numsum:freq      3.519      2.265  5178.719   1.554   0.1203    
+condno_syntax:numsum:freq    18.390      2.184  5176.273   8.419  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+             (Intr) cndn_c cndn_s numsum freq   cndn_cnt:n cndn_syntx:n
+condno_cont  -0.671                                                    
+condn_syntx  -0.711  0.477                                             
+numsum       -0.991  0.665  0.704                                      
+freq         -0.990  0.664  0.703  0.996                               
+cndn_cnt:nm   0.666 -0.991 -0.473 -0.672 -0.669                        
+cndn_syntx:n  0.703 -0.472 -0.991 -0.710 -0.707  0.477                 
+cndn_cnt:fr   0.665 -0.991 -0.472 -0.668 -0.671  0.996      0.474      
+cndn_syntx:f  0.702 -0.471 -0.990 -0.706 -0.709  0.475      0.996      
+numsum:freq   0.322 -0.216 -0.229 -0.416 -0.421  0.279      0.295      
+cndn_cnt:n:  -0.223  0.322  0.159  0.288  0.292 -0.412     -0.205      
+cndn_synt::  -0.231  0.155  0.336  0.299  0.303 -0.201     -0.429      
+             cndn_cnt:f cndn_syntx:f nmsm:f cndn_c::
+condno_cont                                         
+condn_syntx                                         
+numsum                                              
+freq                                                
+cndn_cnt:nm                                         
+cndn_syntx:n                                        
+cndn_cnt:fr                                         
+cndn_syntx:f  0.476                                 
+numsum:freq   0.283      0.299                      
+cndn_cnt:n:  -0.418     -0.207       -0.694         
+cndn_synt::  -0.204     -0.433       -0.720  0.500  
+Generalized linear mixed model fit by maximum likelihood (Laplace
+  Approximation) [glmerMod]
+ Family: binomial  ( logit )
+Formula: correct ~ cond * numsum + freq + (1 | GID)
+   Data: M2
+
+     AIC      BIC   logLik deviance df.resid 
+  4311.0   4363.5  -2147.5   4295.0     5251 
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-27.8183   0.0494   0.2037   0.4708   1.9572 
+
+Random effects:
+ Groups Name        Variance Std.Dev.
+ GID    (Intercept) 2.256    1.502   
+Number of obs: 5259, groups:  GID, 91
+
+Fixed effects:
+                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)          30.19298    2.93589  10.284  < 2e-16 ***
+condno_count          2.85982    0.61862   4.623 3.78e-06 ***
+condno_syntax        -2.22840    0.49373  -4.513 6.38e-06 ***
+numsum               -1.30391    0.13237  -9.850  < 2e-16 ***
+freq                 -1.23378    0.13405  -9.204  < 2e-16 ***
+condno_count:numsum  -0.14826    0.03284  -4.515 6.34e-06 ***
+condno_syntax:numsum  0.10669    0.02337   4.565 4.99e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) cndn_c cndn_s numsum freq   cndn_c:
+condno_cont -0.021                                    
+condn_syntx -0.155  0.441                             
+numsum      -0.993 -0.005  0.121                      
+freq        -0.992 -0.054  0.060  0.991               
+cndn_cnt:nm -0.041 -0.715 -0.240  0.008  0.083        
+cndn_syntx:  0.150 -0.269 -0.562 -0.197 -0.093  0.414 

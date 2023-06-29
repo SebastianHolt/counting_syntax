@@ -1,0 +1,55 @@
+Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: CT ~ base + (1 | GID)
+   Data: Q1
+
+REML criterion at convergence: 214174.4
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.5037 -0.4260 -0.1845  0.1548 18.7262 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ GID      (Intercept)  790731   889.2  
+ Residual             2455940  1567.1  
+Number of obs: 12170, groups:  GID, 192
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(>|t|)    
+(Intercept)  2168.46     142.66  189.88  15.200   <2e-16 ***
+base          -24.30      24.14  189.80  -1.007    0.315    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+     (Intr)
+base -0.888
+Generalized linear mixed model fit by maximum likelihood (Laplace
+  Approximation) [glmerMod]
+ Family: binomial  ( logit )
+Formula: correct ~ base + (1 | GID)
+   Data: Q1
+
+     AIC      BIC   logLik deviance df.resid 
+  4066.1   4088.3  -2030.0   4060.1    12286 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-7.2830  0.1014  0.1392  0.2079  0.5802 
+
+Random effects:
+ Groups Name        Variance Std.Dev.
+ GID    (Intercept) 1.378    1.174   
+Number of obs: 12289, groups:  GID, 192
+
+Fixed effects:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  3.74097    0.23006  16.261   <2e-16 ***
+base        -0.01192    0.03782  -0.315    0.753    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+     (Intr)
+base -0.864

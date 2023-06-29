@@ -1,0 +1,72 @@
+Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: CT ~ base + add + mult + exp + numSyls + (1 | GID)
+   Data: Q1
+
+REML criterion at convergence: 214083.3
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.5050 -0.4299 -0.1804  0.1621 18.5394 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ GID      (Intercept)  790320   889    
+ Residual             2446478  1564    
+Number of obs: 12170, groups:  GID, 192
+
+Fixed effects:
+            Estimate Std. Error       df t value Pr(>|t|)    
+(Intercept)  2316.28     198.02   694.94  11.697  < 2e-16 ***
+base          -23.59      24.36   196.98  -0.968 0.334051    
+add           107.93     144.05 11982.74   0.749 0.453710    
+mult          580.21     149.17 12010.89   3.890 0.000101 ***
+exp           -33.36      63.65 12151.14  -0.524 0.600175    
+numSyls      -159.29     135.76 11981.19  -1.173 0.240713    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+        (Intr) base   add    mult   exp   
+base    -0.650                            
+add      0.638  0.021                     
+mult     0.601  0.019  0.871              
+exp      0.061  0.098  0.176  0.231       
+numSyls -0.679 -0.004 -0.970 -0.910 -0.220
+Generalized linear mixed model fit by maximum likelihood (Laplace
+  Approximation) [glmerMod]
+ Family: binomial  ( logit )
+Formula: correct ~ base + add + mult + exp + numSyls + (1 + num | GID)
+   Data: Q1
+
+     AIC      BIC   logLik deviance df.resid 
+  3950.0   4016.8  -1966.0   3932.0    12280 
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-8.8520  0.1063  0.1430  0.2110  1.4046 
+
+Random effects:
+ Groups Name        Variance Std.Dev. Corr
+ GID    (Intercept) 0.64761  0.8047       
+        num         0.01081  0.1040   0.64
+Number of obs: 12289, groups:  GID, 192
+
+Fixed effects:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  4.01099    0.49825   8.050 8.27e-16 ***
+base        -0.03588    0.03971  -0.903   0.3663    
+add         -0.73420    0.45926  -1.599   0.1099    
+mult        -0.92908    0.47257  -1.966   0.0493 *  
+exp         -0.04638    0.22970  -0.202   0.8400    
+numSyls      0.15820    0.43213   0.366   0.7143    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+        (Intr) base   add    mult   exp   
+base    -0.441                            
+add      0.775  0.087                     
+mult     0.752  0.077  0.903              
+exp      0.016  0.227  0.189  0.264       
+numSyls -0.856 -0.015 -0.965 -0.927 -0.184

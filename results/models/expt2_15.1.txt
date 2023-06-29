@@ -1,0 +1,75 @@
+Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: CT ~ cond * freq + num + (1 | GID)
+   Data: Q2
+
+REML criterion at convergence: 88530.7
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-1.6673 -0.3742 -0.1645  0.1086 22.0093 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ GID      (Intercept)  789507   888.5  
+ Residual             4049742  2012.4  
+Number of obs: 4896, groups:  GID, 91
+
+Fixed effects:
+                   Estimate Std. Error      df t value Pr(>|t|)    
+(Intercept)         2060.73     195.19  153.50  10.558  < 2e-16 ***
+condno_count        1404.78     255.72  113.22   5.493 2.45e-07 ***
+condno_syntax        688.78     253.56  113.07   2.716  0.00764 ** 
+freq                 -50.61      22.42 4801.12  -2.257  0.02405 *  
+num                  -44.16      13.46 4801.19  -3.282  0.00104 ** 
+condno_count:freq   -130.13      30.38 4801.19  -4.284 1.88e-05 ***
+condno_syntax:freq   -78.74      30.11 4801.13  -2.615  0.00895 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) cndn_c cndn_s freq   num    cndn_c:
+condno_cont -0.655                                    
+condn_syntx -0.660  0.504                             
+freq        -0.415  0.232  0.233                      
+num         -0.378  0.001 -0.001  0.296               
+cndn_cnt:fr  0.224 -0.344 -0.172 -0.674 -0.001        
+cndn_syntx:  0.225 -0.172 -0.343 -0.679  0.002  0.501 
+Generalized linear mixed model fit by maximum likelihood (Laplace
+  Approximation) [glmerMod]
+ Family: binomial  ( logit )
+Formula: correct ~ cond * freq + num + (1 | GID)
+   Data: Q2
+
+     AIC      BIC   logLik deviance df.resid 
+  1823.4   1875.4   -903.7   1807.4     4906 
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-12.3536   0.0848   0.1371   0.2286   1.4977 
+
+Random effects:
+ Groups Name        Variance Std.Dev.
+ GID    (Intercept) 2.222    1.491   
+Number of obs: 4914, groups:  GID, 91
+
+Fixed effects:
+                   Estimate Std. Error z value Pr(>|z|)    
+(Intercept)         4.55366    0.41671  10.928  < 2e-16 ***
+condno_count       -1.56969    0.48476  -3.238   0.0012 ** 
+condno_syntax      -0.46860    0.49585  -0.945   0.3446    
+freq               -0.01123    0.05901  -0.190   0.8490    
+num                -0.14062    0.02905  -4.840 1.30e-06 ***
+condno_count:freq   0.43974    0.08326   5.282 1.28e-07 ***
+condno_syntax:freq  0.11420    0.08080   1.413   0.1575    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) cndn_c cndn_s freq   num    cndn_c:
+condno_cont -0.659                                    
+condn_syntx -0.635  0.542                             
+freq        -0.466  0.293  0.281                      
+num         -0.452  0.019  0.002  0.295               
+cndn_cnt:fr  0.267 -0.335 -0.201 -0.659 -0.041        
+cndn_syntx:  0.245 -0.210 -0.383 -0.667  0.001  0.473 
