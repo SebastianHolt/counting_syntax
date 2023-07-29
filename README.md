@@ -1,3 +1,7 @@
-# number_syntax
+# Counting Syntax
 
-In this project, we teach online participants artificial number systems, to ask how different aspects of their structure and use influence their learnability.
+Number systems usually express unbounded meaning via generative rules and a numerical base. While children easily grasp the productive, compositional structure of their native languages, they don't discover the generative rules of number systems until years of practice later. Why?
+
+Some reasons might lie with the kinds of number systems children have to learn. Although numerical bases range from 2 to 20 across languages, base-10 is by far the most common, limiting children's exposure to rule-based expressions within the small number range (~1-4). The *way* that children are exposed to numbers may also matter: exposure to numbers comes predominantly from the counting procedure, in which each number is inseparable from the numbers that come before it, perhaps limiting learners' ability to perceive the significance of each number word outside the context of counting.
+
+In this project, we taught online participants artificial number systems, asking how the size of the numerical base (Experiment 1) and the presence of a counting procedure (Experiment 2) influenced the learnability of number systems. Results of Experiment 1 that the exposure to compositional rules afforded by small bases did not facilitate learner's memory for number words they had learned, nor did it help them to generalize those rules to productively create labels for larger quantities ? perhaps because these rules were overshadowed by the counting procedure. Results of Experiment 2 suggest that while the counting procedure helps learners to recall number words effectively, only compositional rules enable them to recover the meaning of number words outside the context of the count list ? and that learners were even more successful when they had never rehearsed the counting procedure.
