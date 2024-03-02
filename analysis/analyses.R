@@ -11,6 +11,10 @@ Q1 <- read_csv("../data/Q1.csv")
 Q2 <- read_csv("../data/Q2.csv")
 M2 <- read_csv("../data/M2.csv")
 
+G1 <- read_csv("../data/G1.csv")
+G2 <- read_csv("../data/G2.csv")
+
+
 # convert time variables back into milliseconds. Not important, but seems standard
 Q1$RT <- Q1$RT*1000
 Q1$WT <- Q1$WT*1000
@@ -25,7 +29,7 @@ Q1a <- Q1 %>% filter(base %in% c(2, 3, 4, 5))
 Q1b <- Q1 %>% filter(base %in% c(4, 8, 10))
 
 # This document contains our pre-registered analyses. Annotations reflect one major difference,
-# which is increased Experiment 1a sample size, requested by reviewers. Also, we will check if
+# which is increased Experiment 1a sample size, requested by conference reviewers. Also, we will check if
 # our pre-registered time DV (RT + (WT / word_length)) differs from simple reaction time (RT).
 # Finally, it contains an exploratory model probing effects of different rules of composition.
 
@@ -168,5 +172,10 @@ sink(file = NULL)
 #######################
 
 
+## Experiment 1 - Post-Hoc: Base Size on Generalization Strategy #######################
+
+summary(glmer(data=G1, exact_match ~ base + ( 1 + num | GID ), family='binomial'))
+
+#######################
 
 

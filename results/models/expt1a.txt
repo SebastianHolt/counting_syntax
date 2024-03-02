@@ -1,5 +1,4 @@
-Linear mixed model fit by REML. t-tests use Satterthwaite's method [
-lmerModLmerTest]
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
 Formula: CT ~ base + (1 | GID)
    Data: Q1a
 
@@ -25,8 +24,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 Correlation of Fixed Effects:
      (Intr)
 base -0.953
-Generalized linear mixed model fit by maximum likelihood (Laplace
-  Approximation) [glmerMod]
+Generalized linear mixed model fit by maximum likelihood (Laplace Approximation) ['glmerMod']
  Family: binomial  ( logit )
 Formula: correct ~ base + (1 | GID)
    Data: Q1a
@@ -44,9 +42,9 @@ Random effects:
 Number of obs: 8511, groups:  GID, 133
 
 Fixed effects:
-            Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  3.70651    0.41779   8.872   <2e-16 ***
-base        -0.00514    0.11067  -0.046    0.963    
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  3.706489   0.417886   8.870   <2e-16 ***
+base        -0.005132   0.110689  -0.046    0.963    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 

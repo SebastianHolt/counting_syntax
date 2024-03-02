@@ -1,5 +1,4 @@
-Linear mixed model fit by REML. t-tests use Satterthwaite's method [
-lmerModLmerTest]
+Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
 Formula: CT ~ cond * freq + num + (1 | GID)
    Data: Q2
 
@@ -35,8 +34,7 @@ freq        -0.415  0.232  0.233
 num         -0.378  0.001 -0.001  0.296               
 cndn_cnt:fr  0.224 -0.344 -0.172 -0.674 -0.001        
 cndn_syntx:  0.225 -0.172 -0.343 -0.679  0.002  0.501 
-Generalized linear mixed model fit by maximum likelihood (Laplace
-  Approximation) [glmerMod]
+Generalized linear mixed model fit by maximum likelihood (Laplace Approximation) ['glmerMod']
  Family: binomial  ( logit )
 Formula: correct ~ cond * freq + num + (1 | GID)
    Data: Q2
@@ -55,13 +53,13 @@ Number of obs: 4914, groups:  GID, 91
 
 Fixed effects:
                    Estimate Std. Error z value Pr(>|z|)    
-(Intercept)         4.55366    0.41671  10.928  < 2e-16 ***
-condno_count       -1.56969    0.48476  -3.238   0.0012 ** 
-condno_syntax      -0.46860    0.49585  -0.945   0.3446    
-freq               -0.01123    0.05901  -0.190   0.8490    
-num                -0.14062    0.02905  -4.840 1.30e-06 ***
-condno_count:freq   0.43974    0.08326   5.282 1.28e-07 ***
-condno_syntax:freq  0.11420    0.08080   1.413   0.1575    
+(Intercept)         4.55367    0.41671  10.928  < 2e-16 ***
+condno_count       -1.56976    0.48476  -3.238   0.0012 ** 
+condno_syntax      -0.46868    0.49585  -0.945   0.3445    
+freq               -0.01124    0.05901  -0.191   0.8489    
+num                -0.14061    0.02905  -4.840 1.30e-06 ***
+condno_count:freq   0.43975    0.08326   5.282 1.28e-07 ***
+condno_syntax:freq  0.11421    0.08080   1.414   0.1575    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
