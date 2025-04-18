@@ -69,3 +69,5 @@ model_ext <- extend(model, along="subject", n=120)
 p_curve_treat <- powerCurve(model_ext, test=fcompare(y~trial), along="subject")
 plot(p_curve_treat)
 
+
+

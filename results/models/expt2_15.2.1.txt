@@ -19,7 +19,7 @@ Fixed effects:
 (Intercept)   2586.2296   125.6919  121.4406  20.576  < 2e-16 ***
 condno_count   -43.1237   164.5551   89.2814  -0.262    0.794    
 condno_syntax  787.3515   162.8039   88.3632   4.836 5.56e-06 ***
-numsum           0.1729     3.7041 5181.6127   0.047    0.963    
+numsum           0.1729     3.7041 5181.6128   0.047    0.963    
 numdif        -106.5498     6.7226 5179.1225 -15.850  < 2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
@@ -35,8 +35,8 @@ Generalized linear mixed model fit by maximum likelihood (Laplace Approximation)
 Formula: correct ~ cond + numsum + numdif + (1 | GID)
    Data: M2
 
-     AIC      BIC   logLik deviance df.resid 
-  3962.4   4001.8  -1975.2   3950.4     5253 
+      AIC       BIC    logLik -2*log(L)  df.resid 
+   3962.4    4001.8   -1975.2    3950.4      5253 
 
 Scaled residuals: 
      Min       1Q   Median       3Q      Max 
@@ -49,18 +49,18 @@ Number of obs: 5259, groups:  GID, 91
 
 Fixed effects:
                Estimate Std. Error z value Pr(>|z|)    
-(Intercept)    1.877552   0.326073   5.758 8.51e-09 ***
-condno_count   0.887528   0.431211   2.058  0.03957 *  
-condno_syntax -1.076124   0.408600  -2.634  0.00845 ** 
+(Intercept)    1.877552   0.325979   5.760 8.42e-09 ***
+condno_count   0.887528   0.431100   2.059  0.03952 *  
+condno_syntax -1.076125   0.408514  -2.634  0.00843 ** 
 numsum        -0.077412   0.009824  -7.880 3.28e-15 ***
-numdif         0.507431   0.026575  19.095  < 2e-16 ***
+numdif         0.507431   0.026574  19.095  < 2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Correlation of Fixed Effects:
             (Intr) cndn_c cndn_s numsum
-condno_cont -0.615                     
-condn_syntx -0.665  0.496              
+condno_cont -0.614                     
+condn_syntx -0.665  0.495              
 numsum      -0.364 -0.011  0.017       
 numdif      -0.161  0.003 -0.023 -0.023
 Linear mixed model fit by REML. t-tests use Satterthwaite's method ['lmerModLmerTest']
@@ -108,28 +108,28 @@ Generalized linear mixed model fit by maximum likelihood (Laplace Approximation)
 Formula: correct ~ syllDiff * (cond + numdif) + numsum + (1 | GID)
    Data: M2
 
-     AIC      BIC   logLik deviance df.resid 
-  3758.5   3824.2  -1869.3   3738.5     5249 
+      AIC       BIC    logLik -2*log(L)  df.resid 
+   3758.5    3824.2   -1869.3    3738.5      5249 
 
 Scaled residuals: 
      Min       1Q   Median       3Q      Max 
--26.1407   0.0147   0.1269   0.3818   2.8878 
+-26.1394   0.0147   0.1269   0.3818   2.8878 
 
 Random effects:
  Groups Name        Variance Std.Dev.
- GID    (Intercept) 2.24     1.497   
+ GID    (Intercept) 2.241    1.497   
 Number of obs: 5259, groups:  GID, 91
 
 Fixed effects:
                         Estimate Std. Error z value Pr(>|z|)    
-(Intercept)             1.498431   0.328035   4.568 4.93e-06 ***
-syllDiff                3.199779   0.356093   8.986  < 2e-16 ***
-condno_count            0.881940   0.433216   2.036 0.041770 *  
-condno_syntax          -0.884298   0.414947  -2.131 0.033080 *  
-numdif                  0.454521   0.039665  11.459  < 2e-16 ***
-numsum                 -0.066897   0.009737  -6.870 6.41e-12 ***
-syllDiff:condno_count   1.003893   0.772018   1.300 0.193481    
-syllDiff:condno_syntax -2.301391   0.333795  -6.895 5.40e-12 ***
+(Intercept)             1.498410   0.328047   4.568 4.93e-06 ***
+syllDiff                3.199773   0.356092   8.986  < 2e-16 ***
+condno_count            0.882001   0.433210   2.036 0.041754 *  
+condno_syntax          -0.884276   0.414950  -2.131 0.033085 *  
+numdif                  0.454516   0.039664  11.459  < 2e-16 ***
+numsum                 -0.066898   0.009737  -6.870 6.41e-12 ***
+syllDiff:condno_count   1.003816   0.771911   1.300 0.193454    
+syllDiff:condno_syntax -2.301377   0.333795  -6.895 5.40e-12 ***
 syllDiff:numdif        -0.188920   0.056401  -3.350 0.000809 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
@@ -144,24 +144,21 @@ numsum         -0.351  0.006 -0.013  0.028 -0.064
 syllDff:cndn_c  0.017 -0.348 -0.042 -0.016  0.000  0.011                              
 syllDff:cndn_s  0.039 -0.840 -0.037 -0.094  0.109 -0.038  0.370                       
 syllDff:nmd     0.125 -0.464  0.000  0.067 -0.704  0.048  0.003          0.015        
-optimizer (Nelder_Mead) convergence code: 0 (OK)
-Model failed to converge with max|grad| = 0.00236823 (tol = 0.002, component 1)
-
 Data: M2
 Models:
 RT_M2b: RT ~ cond + numsum + numdif + (1 | GID)
 RT_M2b_wl: RT ~ syllDiff * (cond + numdif) + numsum + (1 | GID)
-          npar   AIC   BIC logLik deviance  Chisq Df Pr(>Chisq)    
-RT_M2b       7 88288 88334 -44137    88274                         
-RT_M2b_wl   11 88011 88084 -43995    87989 285.18  4  < 2.2e-16 ***
+          npar   AIC   BIC logLik -2*log(L)  Chisq Df Pr(>Chisq)    
+RT_M2b       7 88288 88334 -44137     88274                         
+RT_M2b_wl   11 88011 88084 -43995     87989 285.18  4  < 2.2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 Data: M2
 Models:
 AC_M2b: correct ~ cond + numsum + numdif + (1 | GID)
 AC_M2b_wl: correct ~ syllDiff * (cond + numdif) + numsum + (1 | GID)
-          npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)    
-AC_M2b       6 3962.4 4001.8 -1975.2   3950.4                         
-AC_M2b_wl   10 3758.5 3824.2 -1869.3   3738.5 211.84  4  < 2.2e-16 ***
+          npar    AIC    BIC  logLik -2*log(L)  Chisq Df Pr(>Chisq)    
+AC_M2b       6 3962.4 4001.8 -1975.2    3950.4                         
+AC_M2b_wl   10 3758.5 3824.2 -1869.3    3738.5 211.84  4  < 2.2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

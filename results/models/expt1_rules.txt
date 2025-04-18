@@ -18,7 +18,7 @@ Fixed effects:
             Estimate Std. Error       df t value Pr(>|t|)    
 (Intercept)  2316.28     198.02   694.94  11.697  < 2e-16 ***
 base          -23.59      24.36   196.98  -0.968 0.334051    
-add           107.93     144.05 11982.74   0.749 0.453710    
+add           107.93     144.05 11982.73   0.749 0.453710    
 mult          580.21     149.17 12010.89   3.890 0.000101 ***
 exp           -33.36      63.65 12151.14  -0.524 0.600175    
 numSyls      -159.29     135.76 11981.19  -1.173 0.240713    
@@ -37,37 +37,37 @@ Generalized linear mixed model fit by maximum likelihood (Laplace Approximation)
 Formula: correct ~ base + add + mult + exp + numSyls + (1 + num | GID)
    Data: Q1
 
-     AIC      BIC   logLik deviance df.resid 
-  3950.0   4016.8  -1966.0   3932.0    12280 
+      AIC       BIC    logLik -2*log(L)  df.resid 
+   3950.0    4016.8   -1966.0    3932.0     12280 
 
 Scaled residuals: 
     Min      1Q  Median      3Q     Max 
--8.8484  0.1064  0.1432  0.2111  1.4042 
+-8.8485  0.1064  0.1432  0.2111  1.4043 
 
 Random effects:
  Groups Name        Variance Std.Dev. Corr
- GID    (Intercept) 0.6456   0.8035       
-        num         0.0108   0.1039   0.65
+ GID    (Intercept) 0.64565  0.8035       
+        num         0.01081  0.1040   0.65
 Number of obs: 12289, groups:  GID, 192
 
 Fixed effects:
             Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  4.00263    0.49867   8.027    1e-15 ***
-base        -0.03541    0.03968  -0.893   0.3721    
-add         -0.73905    0.45987  -1.607   0.1080    
-mult        -0.93335    0.47313  -1.973   0.0485 *  
-exp         -0.04385    0.22964  -0.191   0.8486    
-numSyls      0.16340    0.43280   0.378   0.7058    
+(Intercept)  4.00248    0.49811   8.035 9.33e-16 ***
+base        -0.03540    0.03967  -0.892   0.3722    
+add         -0.73915    0.45945  -1.609   0.1077    
+mult        -0.93349    0.47265  -1.975   0.0483 *  
+exp         -0.04390    0.22963  -0.191   0.8484    
+numSyls      0.16351    0.43233   0.378   0.7053    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Correlation of Fixed Effects:
         (Intr) base   add    mult   exp   
 base    -0.439                            
-add      0.776  0.087                     
-mult     0.753  0.076  0.904              
+add      0.776  0.088                     
+mult     0.753  0.077  0.903              
 exp      0.016  0.227  0.188  0.263       
-numSyls -0.857 -0.015 -0.965 -0.928 -0.183
+numSyls -0.857 -0.016 -0.965 -0.927 -0.183
 optimizer (Nelder_Mead) convergence code: 0 (OK)
-Model failed to converge with max|grad| = 0.0184857 (tol = 0.002, component 1)
+Model failed to converge with max|grad| = 0.0170432 (tol = 0.002, component 1)
 

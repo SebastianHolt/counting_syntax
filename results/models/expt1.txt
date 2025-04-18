@@ -29,8 +29,8 @@ Generalized linear mixed model fit by maximum likelihood (Laplace Approximation)
 Formula: correct ~ base + (1 | GID)
    Data: Q1
 
-     AIC      BIC   logLik deviance df.resid 
-  4066.1   4088.3  -2030.0   4060.1    12286 
+      AIC       BIC    logLik -2*log(L)  df.resid 
+   4066.1    4088.3   -2030.0    4060.1     12286 
 
 Scaled residuals: 
     Min      1Q  Median      3Q     Max 
